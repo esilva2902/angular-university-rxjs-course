@@ -46,7 +46,16 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit() {
-
+		fromEvent(this.saveButton.nativeElement, 'click')
+			.pipe(
+				/**
+				 * exhaustMap() operator ignores all emitted values during 
+				 * map execution. Once map has finished it takes the next 
+				 * value.
+				 */
+				exhaustMap(() => this.saveCourse(this.form.value))	
+			)
+			.subscribe();
 	}
 
 	close() {
