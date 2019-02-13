@@ -15,10 +15,11 @@ import {
 } from 'rxjs/operators';
 import {merge, fromEvent, Observable, concat} from 'rxjs';
 
-import {Course} from "../model/course";
+import { Course } from "../model/course";
 import { Lesson } from './../model/lesson';
 
 import { createHttpObservable } from '../common/util';
+import { debug, RxJSLoggingLevel, setRxJSLoggingLevel } from '../common/debug';
 
 @Component({
     selector: 'course',
@@ -42,10 +43,12 @@ export class CourseComponent implements OnInit, AfterViewInit {
 	ngOnInit() {
 		this.courseId = this.route.snapshot.params['id'];
 
-		this.course$ = createHttpObservable(`/api/courses/${this.courseId}`);
+		this.course$ = createHttpObservable(`/api/courses/${this.courseId}`)
+			.pipe(
+				debug(RxJSLoggingLevel.TRACE, 'course value')
+			);
 
-		this.lessons$ = this.loadLessons();
-
+		setRxJSLoggingLevel(RxJSLoggingLevel.DEBUG);
 	}
 
 	ngAfterViewInit() {
@@ -53,9 +56,11 @@ export class CourseComponent implements OnInit, AfterViewInit {
 			.pipe(
 				map(event => event.target.value),
 				startWith(''),
+				debug(RxJSLoggingLevel.INFO, 'search'),
 				debounceTime(400),
 				distinctUntilChanged(),
-				switchMap(search => this.loadLessons(search))
+				switchMap(search => this.loadLessons(search)),
+				debug(RxJSLoggingLevel.DEBUG, 'lessons value')
 			);
 	}
 
