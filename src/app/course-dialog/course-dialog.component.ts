@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import {fromEvent} from 'rxjs';
 import {concatMap, distinctUntilChanged, exhaustMap, filter, mergeMap, tap} from 'rxjs/operators';
 import {fromPromise} from 'rxjs/internal-compatibility';
+import { Store } from '../common/store.service';
 
 @Component({
     selector: 'course-dialog',
@@ -23,19 +24,19 @@ export class CourseDialogComponent implements AfterViewInit {
     @ViewChild('searchInput') searchInput : ElementRef;
 
     constructor(
-        private fb: FormBuilder,
-        private dialogRef: MatDialogRef<CourseDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) course:Course ) {
+			private fb: FormBuilder,
+			private dialogRef: MatDialogRef<CourseDialogComponent>,
+			@Inject(MAT_DIALOG_DATA) course:Course,
+			private storeService: Store) {
 
-        this.course = course;
+			this.course = course;
 
-        this.form = fb.group({
-            description: [course.description, Validators.required],
-            category: [course.category, Validators.required],
-            releasedAt: [moment(), Validators.required],
-            longDescription: [course.longDescription,Validators.required]
-        });
-
+			this.form = fb.group({
+					description: [course.description, Validators.required],
+					category: [course.category, Validators.required],
+					releasedAt: [moment(), Validators.required],
+					longDescription: [course.longDescription,Validators.required]
+			});
     }
 
     ngAfterViewInit() {
@@ -44,10 +45,17 @@ export class CourseDialogComponent implements AfterViewInit {
 
     }
 
+		save() {
+			this.storeService.saveCourse(this.course.id, this.form.value)
+				.subscribe(() => {
+					this.close();
+				}, 
+				err => console.log(`Error saving course`, err));
+		}
 
 
     close() {
-        this.dialogRef.close();
+      this.dialogRef.close();
     }
 
 
