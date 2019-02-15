@@ -44,9 +44,20 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
 
-        this.courseId = this.route.snapshot.params['id'];
+			this.courseId = this.route.snapshot.params['id'];
+			this.route.paramMap.subscribe(value => console.log(`route value: `, value));
 
-        this.course$ = this.storeService.selectCourseById(this.courseId);
+			this.course$ = this.storeService.selectCourseById(this.courseId);
+
+			
+			this.loadLessons()
+				.pipe(
+					withLatestFrom(this.course$)
+				)
+				.subscribe(([lessons, course]) => {
+					console.log(`lessons: `, lessons);
+					console.log(`course: `, course);
+				})
 
     }
 

@@ -11,7 +11,7 @@ import { createHttpObservable } from "./util";
 })
 export class Store {
   
-  private subject = new BehaviorSubject<Course[]>([ ]);
+  private subject = new BehaviorSubject<Course[]>([]);
   public courses$: Observable<Course[]> = this.subject.asObservable();
 
   public init() {
@@ -20,7 +20,8 @@ export class Store {
     http$
       .pipe(
           tap(() => console.log("HTTP request executed")),
-          map(res => Object.values(res["payload"] as Course[]))
+          map(res => Object.values(res["payload"] as Course[])),
+          tap(courses => console.log(`Courses retrieved: `, courses))
       )
       .subscribe(courses => this.subject.next(courses));
   }
@@ -42,10 +43,11 @@ export class Store {
   }
 
   public selectCourseById(courseId: number): Observable<Course> {
+    console.log(`selectCourseById ==> courseId: ${courseId}`);
     return this.courses$
       .pipe(
           map(courses => courses.find(course => course.id === courseId)),
-          filter(course => !!course)
+          // filter(course => !!course)
       );
   }
 
